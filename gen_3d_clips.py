@@ -68,7 +68,7 @@ def get_args():
                     help='Restrict domain to (x0,x1, y0,y1, z0,z1)')
     pr.add_argument('-zoom', type=float, default=1.0,
                     help='Zoom factor')
-    pr.add_argument('-pan', type=float, nargs=2, default=[0., 0.],
+    pr.add_argument('-pan', type=float, nargs=2, default=(0., 0.),
                     help='Image pan (relative x,y shift of window)')
 
     pr.add_argument('-rmode', type=str, default='step',
@@ -85,10 +85,6 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
 
-    v.AddArgument('-np')
-    v.AddArgument('4')
-    v.AddArgument('-l')
-    v.AddArgument('mpirun')
     v.LaunchNowin()
 
     # Treat databases as time-varying
@@ -153,6 +149,7 @@ if __name__ == '__main__':
     cc.viewNormal = (0, -1, 0)  # View x-plane
     cc.viewUp = (0, 0, 1)       # Z-axis points up
     cc.imageZoom = args.zoom
+    cc.imagePan = args.pan
     v.SetView3D(cc)
 
     # Set box selection
