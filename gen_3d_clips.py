@@ -85,6 +85,8 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
 
+    v.AddArgument("-np 4")
+    v.AddArgument("-l mpirun")
     v.LaunchNowin()
 
     # Treat databases as time-varying
