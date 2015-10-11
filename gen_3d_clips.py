@@ -71,8 +71,8 @@ def get_args():
     pr.add_argument('-pan', type=float, nargs=2, default=[0., 0.],
                     help='Image pan (relative x,y shift of window)')
 
-    pr.add_argument('-rmode', type=str, default="step",
-                    choices=["step", "frames"],
+    pr.add_argument('-rmode', type=str, default='step',
+                    choices=['step', 'frames'],
                     help='Rotation mode')
     pr.add_argument('-rdeg', type=float, default=360,
                     help='Rotation angle in degrees')
@@ -85,8 +85,10 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
 
-    v.AddArgument("-np 4")
-    v.AddArgument("-l mpirun")
+    v.AddArgument('-np')
+    v.AddArgument('4')
+    v.AddArgument('-l')
+    v.AddArgument('mpirun')
     v.LaunchNowin()
 
     # Treat databases as time-varying
@@ -95,7 +97,7 @@ if __name__ == '__main__':
     v.OpenDatabase(args.database + ' database')
     v.AddPlot('Volume', args.varname, 1, 1)
     if args.mesh:
-        v.AddPlot("Mesh", "mesh")
+        v.AddPlot('Mesh', 'mesh')
     v.DrawPlots()
 
     # Set rendering type
@@ -198,7 +200,7 @@ if __name__ == '__main__':
     if args.rdeg == 0:
         args.rsteps = 0          # Don't do zero rotation
 
-    if args.rmode == "step":
+    if args.rmode == 'step':
         dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps * (imax - imin))
         for i in range(imin, imax):
             v.TimeSliderSetState(i)
@@ -208,7 +210,7 @@ if __name__ == '__main__':
                 v.SetView3D(cc)
                 if (j > 0):
                     v.SaveWindow()
-    elif args.rmode == "frames":
+    elif args.rmode == 'frames':
         dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps)
         for i in range(imin, imax):
             v.TimeSliderSetState(i)
