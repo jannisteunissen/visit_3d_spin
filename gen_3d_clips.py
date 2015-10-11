@@ -71,22 +71,15 @@ def get_args():
     pr.add_argument('-pan', type=float, nargs=2, default=[0., 0.],
                     help='Image pan (relative x,y shift of window)')
 
+    pr.add_argument('-rmode', type=str, default="step",
+                    choices=["step", "frames"],
+                    help='Rotation mode')
     pr.add_argument('-rdeg', type=float, default=360,
                     help='Rotation angle in degrees')
-    pr.add_argument('-rstep', type=int, default=1,
-                    help='Number of rotation steps per time step')
-    pr.add_argument('-rframes', type=int, nargs='+',
-                    help='Perform rotations only at these frames')
-
-    pr.add_argument('-en', type=float, nargs=2, default=(1e-3, 0.0),
-                    metavar=('rel', 'abs'),
-                    help='Required rel./abs. error in energy')
-    pr.add_argument('-mu', type=float, nargs=2, default=(5e-3, 0.0),
-                    metavar=('rel', 'abs'),
-                    help='Required rel./abs. error in mobility')
-    pr.add_argument('-D', type=float, nargs=2, default=(1e-2, 0.0),
-                    metavar=('rel', 'abs'),
-                    help='Required rel./abs. error in diff. coeff')
+    pr.add_argument('-rsteps', type=int, default=3,
+                    help='Number of rotation steps')
+    pr.add_argument('-rframes', type=int, nargs='+', default=[0],
+                    help='Perform rotations at these time steps')
     return pr.parse_args()
 
 if __name__ == '__main__':
@@ -201,25 +194,25 @@ if __name__ == '__main__':
         imin = 0
 
     if args.rdeg == 0:
-        args.rstep = 0          # Don't do zero rotation
+        args.rsteps = 0          # Don't do zero rotation
 
-    if args.rframes is None:
-        dphi = args.rdeg * (math.pi/180) / max(1, args.rstep * (imax - imin))
+    if args.rmode == "step":
+        dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps * (imax - imin))
         for i in range(imin, imax):
             v.TimeSliderSetState(i)
             v.SaveWindow()
-            for j in range(args.rstep):
+            for j in range(args.rsteps):
                 cc.viewNormal = rotateXY(cc.viewNormal, dphi)
                 v.SetView3D(cc)
                 if (j > 0):
                     v.SaveWindow()
-    else:
-        dphi = args.rdeg * (math.pi/180) / max(1, args.rstep)
+    elif args.rmode == "frames":
+        dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps)
         for i in range(imin, imax):
             v.TimeSliderSetState(i)
             v.SaveWindow()
             if i in args.rframes:
-                for j in range(args.rstep):
+                for j in range(args.rsteps):
                     cc.viewNormal = rotateXY(cc.viewNormal, dphi)
                     v.SetView3D(cc)
                     v.SaveWindow()
