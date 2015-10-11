@@ -149,7 +149,7 @@ if __name__ == '__main__':
     cc.viewNormal = (0, -1, 0)  # View x-plane
     cc.viewUp = (0, 0, 1)       # Z-axis points up
     cc.imageZoom = args.zoom
-    cc.imagePan = args.pan
+    cc.imagePan = tuple(args.pan)
     v.SetView3D(cc)
 
     # Set box selection
