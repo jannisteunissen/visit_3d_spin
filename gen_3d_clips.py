@@ -73,16 +73,17 @@ def get_args():
     pr.add_argument('-pan', type=float, nargs=2, default=(0., 0.),
                     help='Image pan (relative x,y shift of window)')
 
-    pr.add_argument('-rdeg', type=float, default=360,
-                    help='Rotation angle in degrees')
+    pr.add_argument('-rdeg', type=float, default=6,
+                    help='Rotation angle per time step (degrees)')
+    pr.add_argument('-rfulldeg', type=float, default=360,
+                    help='Full rotation angle (degrees)')
     pr.add_argument('-rsteps', type=int, default=2,
                     help='Number of rotation steps per time step')
     pr.add_argument('-rframes', type=int, nargs='+', default=[],
-                    help='Perform rotations at these time steps')
+                    help='Perform full rotations at these time steps')
     pr.add_argument('-rend', action='store_true',
-                    help='Perform extra rotation at end')
-    pr.add_argument('-rfsteps', type=int, default=30,
-                    help='Number of rotation steps per full rotation')
+                    help='Perform full rotation at end')
+
     return pr.parse_args()
 
 if __name__ == '__main__':
@@ -207,9 +208,11 @@ if __name__ == '__main__':
     if args.rend:
         args.rframes.append(imax-1)
 
-    dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps * (imax - imin))
-    dphi_full = args.rdeg * (math.pi/180) / max(1, args.rfsteps)
-    print(dphi, dphi_full)
+    dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps)
+    # Same rotation speed at the end
+    full_steps = int(args.rfulldeg * (math.pi/180) / dphi)
+    dphi_full = args.rfulldeg * (math.pi/180) / max(1, full_steps)
+
     for i in range(imin, imax):
         v.TimeSliderSetState(i)
         v.SaveWindow()
@@ -219,8 +222,7 @@ if __name__ == '__main__':
             if (j > 0):
                 v.SaveWindow()
         if i in args.rframes:
-            print(i, args.rframes)
-            for j in range(args.rfsteps):
+            for j in range(full_steps):
                 cc.viewNormal = rotateXY(cc.viewNormal, dphi_full)
                 v.SetView3D(cc)
                 v.SaveWindow()
