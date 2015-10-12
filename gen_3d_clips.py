@@ -77,6 +77,8 @@ def get_args():
                     help='Rotation angle per time step (degrees)')
     pr.add_argument('-rfulldeg', type=float, default=360,
                     help='Full rotation angle (degrees)')
+    pr.add_argument('-rfullpause', type=int, default=20,
+                    help='Pause this number of frames before full rotation')
     pr.add_argument('-rsteps', type=int, default=2,
                     help='Number of rotation steps per time step')
     pr.add_argument('-rframes', type=int, nargs='+', default=[],
@@ -222,6 +224,10 @@ if __name__ == '__main__':
             if (j > 0):
                 v.SaveWindow()
         if i in args.rframes:
+            print("end")
+            for j in range(args.rfullpause):
+                v.SaveWindow()
+                print("hi")
             for j in range(full_steps):
                 cc.viewNormal = rotateXY(cc.viewNormal, dphi_full)
                 v.SetView3D(cc)
