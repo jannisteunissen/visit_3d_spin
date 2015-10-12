@@ -185,7 +185,7 @@ if __name__ == '__main__':
     v.SetSaveWindowAttributes(s)
 
     if args.t1 is not None:
-        imax = args.t1
+        imax = args.t1 + 1
     else:
         imax = v.TimeSliderGetNStates()
 
