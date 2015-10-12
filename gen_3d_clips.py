@@ -73,15 +73,16 @@ def get_args():
     pr.add_argument('-pan', type=float, nargs=2, default=(0., 0.),
                     help='Image pan (relative x,y shift of window)')
 
-    pr.add_argument('-rmode', type=str, default='step',
-                    choices=['step', 'frames'],
-                    help='Rotation mode')
     pr.add_argument('-rdeg', type=float, default=360,
                     help='Rotation angle in degrees')
-    pr.add_argument('-rsteps', type=int, default=3,
-                    help='Number of rotation steps')
-    pr.add_argument('-rframes', type=int, nargs='+', default=[0],
+    pr.add_argument('-rsteps', type=int, default=2,
+                    help='Number of rotation steps per time step')
+    pr.add_argument('-rframes', type=int, nargs='+', default=[],
                     help='Perform rotations at these time steps')
+    pr.add_argument('-rend', action='store_true',
+                    help='Perform extra rotation at end')
+    pr.add_argument('-rfsteps', type=int, default=30,
+                    help='Number of rotation steps per full rotation')
     return pr.parse_args()
 
 if __name__ == '__main__':
@@ -203,23 +204,23 @@ if __name__ == '__main__':
     if args.rdeg == 0:
         args.rsteps = 0          # Don't do zero rotation
 
-    if args.rmode == 'step':
-        dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps * (imax - imin))
-        for i in range(imin, imax):
-            v.TimeSliderSetState(i)
-            v.SaveWindow()
-            for j in range(args.rsteps):
-                cc.viewNormal = rotateXY(cc.viewNormal, dphi)
+    if args.rend:
+        args.rframes.append(imax-1)
+
+    dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps * (imax - imin))
+    dphi_full = args.rdeg * (math.pi/180) / max(1, args.rfsteps)
+    print(dphi, dphi_full)
+    for i in range(imin, imax):
+        v.TimeSliderSetState(i)
+        v.SaveWindow()
+        for j in range(args.rsteps):
+            cc.viewNormal = rotateXY(cc.viewNormal, dphi)
+            v.SetView3D(cc)
+            if (j > 0):
+                v.SaveWindow()
+        if i in args.rframes:
+            print(i, args.rframes)
+            for j in range(args.rfsteps):
+                cc.viewNormal = rotateXY(cc.viewNormal, dphi_full)
                 v.SetView3D(cc)
-                if (j > 0):
-                    v.SaveWindow()
-    elif args.rmode == 'frames':
-        dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps)
-        for i in range(imin, imax):
-            v.TimeSliderSetState(i)
-            v.SaveWindow()
-            if i in args.rframes:
-                for j in range(args.rsteps):
-                    cc.viewNormal = rotateXY(cc.viewNormal, dphi)
-                    v.SetView3D(cc)
-                    v.SaveWindow()
+                v.SaveWindow()
