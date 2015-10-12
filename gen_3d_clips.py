@@ -60,6 +60,8 @@ def get_args():
                     help='Show time in output')
     pr.add_argument('-mesh', type=str,
                     help='Show mesh with this name')
+    pr.add_argument('-triad', action='store_true',
+                    help='Show triad')
     pr.add_argument('-legend', action='store_true',
                     help='Show legend in output')
     pr.add_argument('-dbase', action='store_true',
@@ -129,7 +131,10 @@ if __name__ == '__main__':
     # Set annotations
     aatts = v.AnnotationAttributes()
     aatts.axes3D.visible = 0
-    aatts.axes3D.triadFlag = 0
+    if args.triad:
+        aatts.axes3D.triadFlag = 1
+    else:
+        aatts.axes3D.triadFlag = 0
     aatts.axes3D.bboxFlag = 0
     aatts.userInfoFlag = 0
     aatts.timeInfoFlag = 0
@@ -150,6 +155,7 @@ if __name__ == '__main__':
     cc.viewUp = (0, 0, 1)       # Z-axis points up
     cc.imageZoom = args.zoom
     cc.imagePan = tuple(args.pan)
+    cc.perspective = 0
     v.SetView3D(cc)
 
     # Set box selection
