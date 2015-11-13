@@ -100,6 +100,11 @@ if __name__ == '__main__':
     v.AddPlot('Volume', args.varname, 1, 1)
     if args.mesh:
         v.AddPlot('Mesh', 'mesh')
+        matts = v.MeshAttributes()
+        # matts.opaqueMode = matts.Off
+        # matts.smoothingLevel = matts.High
+        # matts.opacity = 0.5
+        v.SetPlotOptions(matts)
     v.DrawPlots()
 
     # Set rendering type
@@ -166,7 +171,7 @@ if __name__ == '__main__':
     if args.bbox:
         v.AddOperator('Box')
         batts = v.BoxAttributes()
-        batts.amount = batts.Some  # Some, All
+        batts.amount = batts.All  # Some, All
         batts.minx = args.bbox[0]
         batts.maxx = args.bbox[1]
         batts.miny = args.bbox[2]
@@ -212,8 +217,12 @@ if __name__ == '__main__':
 
     dphi = args.rdeg * (math.pi/180) / max(1, args.rsteps)
     # Same rotation speed at the end
-    full_steps = int(args.rfulldeg * (math.pi/180) / dphi)
-    dphi_full = args.rfulldeg * (math.pi/180) / max(1, full_steps)
+    if dphi < 1.0e-3:
+        full_steps = 0
+        dphi_full = 0.0
+    else:
+        full_steps = int(round(args.rfulldeg * (math.pi/180) / dphi))
+        dphi_full = args.rfulldeg * (math.pi/180) / full_steps
 
     for i in range(imin, imax):
         v.TimeSliderSetState(i)
@@ -224,10 +233,9 @@ if __name__ == '__main__':
             if (j > 0):
                 v.SaveWindow()
         if i in args.rframes:
-            print("end")
+            print(i, "end")
             for j in range(args.rfullpause):
                 v.SaveWindow()
-                print("hi")
             for j in range(full_steps):
                 cc.viewNormal = rotateXY(cc.viewNormal, dphi_full)
                 v.SetView3D(cc)
