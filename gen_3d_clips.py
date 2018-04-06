@@ -32,9 +32,9 @@ def get_args():
     pr.add_argument('-fmt', type=str, default='png',
                     choices=['png', 'jpeg', 'bmp'],
                     help='Output format')
-    pr.add_argument('-width', type=int, default='1280',
+    pr.add_argument('-width', type=int, default='800',
                     help='Output width (pixels)')
-    pr.add_argument('-height', type=int, default='1280',
+    pr.add_argument('-height', type=int, default='800',
                     help='Output height (pixels)')
 
     pr.add_argument('-cmin', type=float,
@@ -54,7 +54,7 @@ def get_args():
     pr.add_argument('-scaling', type=str, default='lin',
                     choices=['lin', 'log'],
                     help='Scaling of data (lin/log)')
-    pr.add_argument('-nsamples', type=int, default=100*1000,
+    pr.add_argument('-nsamples', type=int, default=15*1000*1000,
                     help='Number of samples for texture/splatting')
     pr.add_argument('-time', action='store_true',
                     help='Show time in output')
@@ -233,7 +233,6 @@ if __name__ == '__main__':
             if (j > 0):
                 v.SaveWindow()
         if i in args.rframes:
-            print(i, "end")
             for j in range(args.rfullpause):
                 v.SaveWindow()
             for j in range(full_steps):
