@@ -37,6 +37,8 @@ def get_args():
     pr.add_argument('-height', type=int, default='800',
                     help='Output height (pixels)')
 
+    pr.add_argument('-ct', type=str,
+                    help='Color table name')
     pr.add_argument('-cmin', type=float,
                     help='Minimum value')
     pr.add_argument('-cmax', type=float,
@@ -47,6 +49,8 @@ def get_args():
                     help='First frame (counting starts at 0)')
     pr.add_argument('-t1', type=int,
                     help='Last frame (counting starts at 0)')
+    pr.add_argument('-tstep', type=int, default=1,
+                    help='Step between frames')
 
     pr.add_argument('-rndr', type=str, default='texture',
                     choices=['splatting', 'texture', 'raycast'],
@@ -72,6 +76,8 @@ def get_args():
                     help='Zoom factor')
     pr.add_argument('-pan', type=float, nargs=2, default=(0., 0.),
                     help='Image pan (relative x,y shift of window)')
+    pr.add_argument('-normal', type=float, nargs=3, default=(0., -1., 0.),
+                    help='View normal vector')
 
     pr.add_argument('-rdeg', type=float, default=6,
                     help='Rotation angle per time step (degrees)')
@@ -91,13 +97,14 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
 
-    v.LaunchNowin()
+    # v.LaunchNowin()
 
     # Treat databases as time-varying
     v.SetTreatAllDBsAsTimeVarying(1)
 
     v.OpenDatabase(args.database + ' database')
     v.AddPlot('Volume', args.varname, 1, 1)
+
     if args.mesh:
         v.AddPlot('Mesh', 'mesh')
         matts = v.MeshAttributes()
@@ -121,6 +128,19 @@ if __name__ == '__main__':
         vatts.scaling = vatts.Linear
     elif args.scaling == 'log':
         vatts.scaling = vatts.Log
+
+    if args.ct:
+        # Grab the control points list from the desired color table
+        ctbl = v.GetColorTable(args.ct)
+
+        # Clear out the color control points
+        vatts.colorControlPoints.ClearControlPoints()
+
+        # For each control point in the color table,
+        # add it to the volume atts color control points
+        for i in range(0, ctbl.GetNumControlPoints()):
+            vatts.colorControlPoints.AddControlPoints(
+                ctbl.GetControlPoints(i))
 
     vatts.resampleFlag = 1
     vatts.resampleTarget = args.nsamples
@@ -160,7 +180,7 @@ if __name__ == '__main__':
 
     # Set initial view
     cc = v.GetView3D()
-    cc.viewNormal = (0, -1, 0)  # View x-plane
+    cc.viewNormal = tuple(args.normal)  # View x-plane
     cc.viewUp = (0, 0, 1)       # Z-axis points up
     cc.imageZoom = args.zoom
     cc.imagePan = tuple(args.pan)
@@ -224,7 +244,7 @@ if __name__ == '__main__':
         full_steps = int(round(args.rfulldeg * (math.pi/180) / dphi))
         dphi_full = args.rfulldeg * (math.pi/180) / full_steps
 
-    for i in range(imin, imax):
+    for i in range(imin, imax, args.tstep):
         v.TimeSliderSetState(i)
         v.SaveWindow()
         for j in range(args.rsteps):
@@ -239,3 +259,5 @@ if __name__ == '__main__':
                 cc.viewNormal = rotateXY(cc.viewNormal, dphi_full)
                 v.SetView3D(cc)
                 v.SaveWindow()
+
+    sys.exit()
