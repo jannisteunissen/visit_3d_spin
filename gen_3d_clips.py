@@ -9,6 +9,7 @@ import argparse
 import os
 import visit as v
 import math
+import sys
 
 
 def rotateXY(xyz, phi):
@@ -19,7 +20,8 @@ def rotateXY(xyz, phi):
 def get_args():
     # Get and parse the command line arguments
     pr = argparse.ArgumentParser(
-        description='''Generate Visit frames of 3D volume data''')
+        description='''Generate Visit frames of 3D volume data''',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     pr.add_argument('database', type=str,
                     help='Database string (can have wildcard)')
     pr.add_argument('varname', type=str,
@@ -94,10 +96,9 @@ def get_args():
 
     return pr.parse_args()
 
+
 if __name__ == '__main__':
     args = get_args()
-
-    # v.LaunchNowin()
 
     # Treat databases as time-varying
     v.SetTreatAllDBsAsTimeVarying(1)
@@ -108,9 +109,6 @@ if __name__ == '__main__':
     if args.mesh:
         v.AddPlot('Mesh', 'mesh')
         matts = v.MeshAttributes()
-        # matts.opaqueMode = matts.Off
-        # matts.smoothingLevel = matts.High
-        # matts.opacity = 0.5
         v.SetPlotOptions(matts)
     v.DrawPlots()
 
@@ -130,17 +128,7 @@ if __name__ == '__main__':
         vatts.scaling = vatts.Log
 
     if args.ct:
-        # Grab the control points list from the desired color table
-        ctbl = v.GetColorTable(args.ct)
-
-        # Clear out the color control points
-        vatts.colorControlPoints.ClearControlPoints()
-
-        # For each control point in the color table,
-        # add it to the volume atts color control points
-        for i in range(0, ctbl.GetNumControlPoints()):
-            vatts.colorControlPoints.AddControlPoints(
-                ctbl.GetControlPoints(i))
+        vatts.SetColorControlPoints(v.GetColorTable(args.ct))
 
     vatts.resampleFlag = 1
     vatts.resampleTarget = args.nsamples
